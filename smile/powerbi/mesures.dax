@@ -1,0 +1,156 @@
+// ============================================================================
+//  SMILE — Mesures DAX
+//  À créer dans une table vide nommée « _Mesures »
+//  (Accueil > Entrer des données > nommer la table _Mesures > Charger)
+//  Puis : clic droit sur _Mesures > Nouvelle mesure > coller chaque formule.
+//
+//  Règle : Taux de réussite + Taux de redoublement + Taux d'abandon = 100 %
+//          Taux d'échec = Redoublement + Abandon = 1 - Taux de réussite
+// ============================================================================
+
+
+// ---------- 1. Effectifs ----------------------------------------------------
+
+Nb Inscriptions =
+COUNTROWS ( FaitInscription )
+
+Nb Étudiants =
+DISTINCTCOUNT ( FaitInscription[EtudiantID] )
+
+Nb Admis =
+CALCULATE ( [Nb Inscriptions], FaitInscription[Decision] = "Admis" )
+
+Nb Redoublements =
+CALCULATE ( [Nb Inscriptions], FaitInscription[Decision] = "Redouble" )
+
+Nb Abandons =
+CALCULATE ( [Nb Inscriptions], FaitInscription[Decision] = "Abandon" )
+
+Nb Redoublants inscrits =
+CALCULATE ( [Nb Inscriptions], FaitInscription[Redoublant] = "Oui" )
+
+
+// ---------- 2. Taux principaux (format : Pourcentage, 1 décimale) -----------
+
+Taux de réussite =
+DIVIDE ( [Nb Admis], [Nb Inscriptions] )
+
+Taux de redoublement =
+DIVIDE ( [Nb Redoublements], [Nb Inscriptions] )
+
+Taux d'abandon =
+DIVIDE ( [Nb Abandons], [Nb Inscriptions] )
+
+Taux d'échec =
+DIVIDE ( [Nb Redoublements] + [Nb Abandons], [Nb Inscriptions] )
+
+
+// ---------- 3. Notes et UE --------------------------------------------------
+
+Moyenne générale =
+AVERAGE ( FaitInscription[MoyenneAnnuelle] )
+
+Note moyenne UE =
+AVERAGE ( FaitNoteUE[Note] )
+
+Nb Notes =
+COUNTROWS ( FaitNoteUE )
+
+Taux de validation UE =
+DIVIDE (
+    CALCULATE ( [Nb Notes], FaitNoteUE[Valide] = "Oui" ),
+    [Nb Notes]
+)
+
+Part en rattrapage =
+DIVIDE (
+    CALCULATE ( [Nb Notes], FaitNoteUE[Session] = 2 ),
+    [Nb Notes]
+)
+
+Rang UE (plus difficile = 1) =
+IF (
+    HASONEVALUE ( DimUE[UELibelle] ),
+    RANKX ( ALLSELECTED ( DimUE[UELibelle] ), [Taux de validation UE], , ASC, DENSE )
+)
+
+Statut UE =
+VAR t = [Taux de validation UE]
+RETURN
+    SWITCH (
+        TRUE (),
+        ISBLANK ( t ), BLANK (),
+        t < 0.45, "UE critique",
+        t < 0.60, "UE à surveiller",
+        "UE maîtrisée"
+    )
+
+
+// ---------- 4. Comparaison avec l'année précédente (N-1) --------------------
+//  On n'utilise pas l'intelligence temporelle (années universitaires, pas des dates).
+//  REMOVEFILTERS(DimAnnee) évite les conflits si l'axe utilise AnneeUniversitaire.
+
+Année sélectionnée =
+MAX ( DimAnnee[AnneeID] )
+
+Taux de réussite N-1 =
+VAR a = [Année sélectionnée]
+RETURN
+    CALCULATE ( [Taux de réussite], REMOVEFILTERS ( DimAnnee ), DimAnnee[AnneeID] = a - 1 )
+
+Évolution réussite (pts) =
+VAR n1 = [Taux de réussite N-1]
+RETURN
+    IF ( NOT ISBLANK ( n1 ), ( [Taux de réussite] - n1 ) * 100 )
+
+Nb Inscriptions N-1 =
+VAR a = [Année sélectionnée]
+RETURN
+    CALCULATE ( [Nb Inscriptions], REMOVEFILTERS ( DimAnnee ), DimAnnee[AnneeID] = a - 1 )
+
+Évolution effectifs % =
+DIVIDE ( [Nb Inscriptions] - [Nb Inscriptions N-1], [Nb Inscriptions N-1] )
+
+Évolution réussite (texte) =
+VAR e = [Évolution réussite (pts)]
+RETURN
+    IF (
+        ISBLANK ( e ), "—",
+        IF ( e >= 0, "▲ +", "▼ " ) & FORMAT ( e, "0.0" ) & " pts vs N-1"
+    )
+
+
+// ---------- 5. Profils ------------------------------------------------------
+
+Part des femmes =
+DIVIDE ( CALCULATE ( [Nb Étudiants], DimEtudiant[Sexe] = "F" ), [Nb Étudiants] )
+
+Taux de réussite femmes =
+CALCULATE ( [Taux de réussite], DimEtudiant[Sexe] = "F" )
+
+Taux de réussite hommes =
+CALCULATE ( [Taux de réussite], DimEtudiant[Sexe] = "M" )
+
+Écart femmes - hommes (pts) =
+( [Taux de réussite femmes] - [Taux de réussite hommes] ) * 100
+
+
+// ---------- 6. Mise en forme conditionnelle (couleurs) ----------------------
+//  Utilisation : visuel > Mise en forme > couleur > fx > Valeur du champ > cette mesure
+
+Couleur réussite =
+VAR t = [Taux de réussite]
+RETURN
+    SWITCH ( TRUE (), ISBLANK ( t ), BLANK (), t >= 0.60, "#16A34A", t >= 0.45, "#F5A524", "#DC2626" )
+
+Couleur validation UE =
+VAR t = [Taux de validation UE]
+RETURN
+    SWITCH ( TRUE (), ISBLANK ( t ), BLANK (), t >= 0.60, "#16A34A", t >= 0.45, "#F5A524", "#DC2626" )
+
+
+// ---------- 7. Titres dynamiques --------------------------------------------
+
+Titre rapport =
+"SMILE · " & SELECTEDVALUE ( DimEtablissement[Etablissement], "Toute l'université" )
+    & " · " & SELECTEDVALUE ( DimAnnee[AnneeUniversitaire], "2018 – 2025" )
