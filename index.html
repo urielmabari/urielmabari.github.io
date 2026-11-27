@@ -432,7 +432,7 @@
   <section id="projets">
     <div class="wrap">
       <h2>Projets Power BI</h2>
-      <p class="sub">Mon projet de certification, puis des études de cas qui montrent l'étendue de mes compétences.</p>
+      <p class="sub">Mon projet de certification, SMILE, une étude de cas sur une pharmacie de Brazzaville, puis d'autres études de cas qui montrent l'étendue de mes compétences.</p>
 
       <article class="card project featured">
         <div>
@@ -486,6 +486,87 @@
         <p class="hint">Cliquez sur une capture pour l'agrandir.</p>
       </article>
 
+      <article class="card project featured" style="margin-top:28px">
+        <div>
+          <span class="badge">🎓 Projet personnel · prototype</span>
+          <h3 style="font-size:1.45rem">SMILE : pilotage de la réussite étudiante à l'Université Marien Ngouabi</h3>
+          <p style="margin-bottom:14px">
+            <b>SMILE</b> (Système de Mesure et d'Indicateurs pour L'Enseignement) centralise les données de tous les
+            établissements de l'université dans un tableau de bord unique : taux de réussite, d'échec, de redoublement
+            et d'abandon par établissement, parcours, niveau et unité d'enseignement, avec leur évolution année après année.
+            Prototype construit sur un jeu de données fictif, en attendant les données réelles anonymisées.
+          </p>
+          <div class="kpis">
+            <div><b>7</b><span>Établissements</span></div>
+            <div><b>16</b><span>Parcours suivis</span></div>
+            <div><b>55 000</b><span>Inscriptions (7 ans)</span></div>
+            <div><b>309 000</b><span>Notes analysées</span></div>
+          </div>
+          <ul class="feat">
+            <li><b>Modèle en étoile</b> : 2 tables de faits (Inscriptions, Notes par UE) et 6 dimensions</li>
+            <li><b>Plus de 30 mesures DAX</b> : taux de réussite, d'abandon, de validation des UE, comparaison N-1, classement des UE à risque, titres dynamiques</li>
+            <li><b>Navigation du global au détail</b> : université → établissement → parcours → niveau → UE</li>
+            <li><b>Alerte précoce</b> : repérage des UE critiques et prévision des effectifs</li>
+          </ul>
+          <div class="stack">
+            <span>Power BI</span><span>DAX</span><span>Power Query</span><span>Python</span><span>Modélisation</span>
+          </div>
+        </div>
+        <div class="gallery" style="grid-template-columns:repeat(2,1fr)">
+          <figure>
+            <img src="smile/apercu/SMILE_apercu_1_vue_universite.png" alt="SMILE, vue Université : taux de réussite et d'abandon – Mabari Uriel" loading="lazy">
+            <figcaption>Vue Université</figcaption>
+          </figure>
+          <figure>
+            <img src="smile/apercu/SMILE_apercu_2_ue_a_risque.png" alt="SMILE, UE à risque et classement des parcours – Mabari Uriel" loading="lazy">
+            <figcaption>UE à risque & parcours</figcaption>
+          </figure>
+        </div>
+        <p class="hint">Données fictives · cliquez sur une capture pour l'agrandir.</p>
+      </article>
+
+      <article class="card project featured" style="margin-top:28px">
+        <div>
+          <span class="badge">💊 Étude de cas</span>
+          <h3 style="font-size:1.45rem">Analyse d'une pharmacie à Brazzaville : ventes, saisonnalité et péremption</h3>
+          <p style="margin-bottom:14px">
+            Cas d'étude d'une pharmacie (fictive) avec 3 points de vente (Poto-Poto, Moungali, Bacongo) sur 24 mois :
+            performance commerciale, produits, saisonnalité du paludisme, modes de paiement (Mobile Money), affluence,
+            stock, péremption et ruptures. Le rapport se termine par des recommandations concrètes.
+          </p>
+          <div class="kpis">
+            <div><b>539 M F</b><span>CA sur 12 mois</span></div>
+            <div><b>+10,8 %</b><span>Croissance vs N-1</span></div>
+            <div><b>163 000</b><span>Tickets analysés</span></div>
+            <div><b>9,5 M F</b><span>Stock à périmer repéré</span></div>
+          </div>
+          <ul class="feat">
+            <li><b>Saisonnalité</b> : ventes d'antipaludéens multipliées par 1,8 en saison des pluies, d'où un stock à constituer dès septembre</li>
+            <li><b>Rentabilité</b> : marge plus faible à Bacongo, à cause de remises trop élevées</li>
+            <li><b>Paiements</b> : part du Mobile Money passée de 23 % à 41 % en deux ans</li>
+            <li><b>Stock</b> : lots à écouler en priorité, couverture en jours, alertes de rupture</li>
+          </ul>
+          <div class="stack">
+            <span>Power BI</span><span>DAX</span><span>Time Intelligence</span><span>Python</span><span>Storytelling</span>
+          </div>
+        </div>
+        <div class="gallery" style="grid-template-columns:repeat(2,1fr)">
+          <figure class="main">
+            <img src="pharmacie/apercu/Pharmacie_1_performance.png" alt="Pharmacie Brazzaville : performance commerciale Power BI – Mabari Uriel" loading="lazy">
+            <figcaption>Performance commerciale</figcaption>
+          </figure>
+          <figure>
+            <img src="pharmacie/apercu/Pharmacie_2_produits_saisonnalite.png" alt="Pharmacie : produits, saisonnalité et affluence – Mabari Uriel" loading="lazy">
+            <figcaption>Produits & saisonnalité</figcaption>
+          </figure>
+          <figure>
+            <img src="pharmacie/apercu/Pharmacie_3_stock_peremption.png" alt="Pharmacie : stock, péremption et ruptures – Mabari Uriel" loading="lazy">
+            <figcaption>Stock & péremption</figcaption>
+          </figure>
+        </div>
+        <p class="hint">Données fictives · cliquez sur une capture pour l'agrandir.</p>
+      </article>
+
       <div class="lightbox" id="lb" onclick="this.classList.remove('open')">
         <img id="lb-img" src="" alt="">
       </div>
@@ -509,12 +590,6 @@
           <h3>Mobile Money & transactions</h3>
           <p>Analyse des dépôts, retraits et transferts par agence et par période, détection des transactions inhabituelles et suivi de la croissance des abonnés.</p>
           <div class="stack"><span>SQL</span><span>Power BI</span><span>Python</span></div>
-        </article>
-        <article class="card project">
-          <div class="thumb"><i style="height:55%"></i><i style="height:80%"></i><i style="height:45%"></i><i style="height:65%"></i><i style="height:60%"></i></div>
-          <h3>Résultats universitaires</h3>
-          <p>Taux de réussite par filière, niveau et matière, évolution des moyennes et identification des matières à risque.</p>
-          <div class="stack"><span>Excel</span><span>Power Query</span><span>Power BI</span></div>
         </article>
         <article class="card project">
           <div class="thumb"><i style="height:35%"></i><i style="height:50%"></i><i style="height:70%"></i><i style="height:60%"></i><i style="height:85%"></i></div>
