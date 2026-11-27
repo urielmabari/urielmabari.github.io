@@ -1,0 +1,57 @@
+// ============================================================================
+//  Pharmacie (cas fictif, Brazzaville) — Mesures DAX
+//  Table de mesures : _Mesures   ·   Table de dates : DimCalendrier (marquée comme table de dates)
+// ============================================================================
+
+// ---------- Ventes ----------
+Chiffre d'affaires = SUM ( FaitVente[MontantTTC] )
+Coût d'achat = SUM ( FaitVente[CoutAchat] )
+Marge brute = [Chiffre d'affaires] - [Coût d'achat]
+Taux de marge = DIVIDE ( [Marge brute], [Chiffre d'affaires] )
+Nb Tickets = DISTINCTCOUNT ( FaitVente[TicketID] )
+Panier moyen = DIVIDE ( [Chiffre d'affaires], [Nb Tickets] )
+Quantité vendue = SUM ( FaitVente[Quantite] )
+
+// ---------- Comparaison N-1 (intelligence temporelle) ----------
+CA N-1 = CALCULATE ( [Chiffre d'affaires], SAMEPERIODLASTYEAR ( DimCalendrier[Date] ) )
+Évolution CA % = DIVIDE ( [Chiffre d'affaires] - [CA N-1], [CA N-1] )
+Tickets N-1 = CALCULATE ( [Nb Tickets], SAMEPERIODLASTYEAR ( DimCalendrier[Date] ) )
+Évolution tickets % = DIVIDE ( [Nb Tickets] - [Tickets N-1], [Tickets N-1] )
+CA 12 mois glissants =
+CALCULATE ( [Chiffre d'affaires],
+    DATESINPERIOD ( DimCalendrier[Date], MAX ( DimCalendrier[Date] ), -12, MONTH ) )
+
+// ---------- Paiements ----------
+Part Mobile Money =
+DIVIDE (
+    CALCULATE ( [Nb Tickets], FaitVente[ModePaiement] IN { "MTN MoMo", "Airtel Money" } ),
+    [Nb Tickets]
+)
+Part Espèces = DIVIDE ( CALCULATE ( [Nb Tickets], FaitVente[ModePaiement] = "Espèces" ), [Nb Tickets] )
+
+// ---------- Produits ----------
+Part antipaludéens =
+DIVIDE ( CALCULATE ( [Chiffre d'affaires], DimProduit[Categorie] = "Antipaludéens" ), [Chiffre d'affaires] )
+Rang produit (CA) =
+IF ( HASONEVALUE ( DimProduit[Produit] ),
+    RANKX ( ALLSELECTED ( DimProduit[Produit] ), [Chiffre d'affaires], , DESC, DENSE ) )
+
+// ---------- Stock & péremption ----------
+//  Colonne calculée dans FaitStock :
+//  JoursAvantPeremption = DATEDIFF ( FaitStock[DateInventaire], FaitStock[DatePeremption], DAY )
+//  ValeurStock = FaitStock[QuantiteStock] * RELATED ( DimProduit[PrixAchat] )
+Valeur du stock = SUM ( FaitStock[ValeurStock] )
+Stock à périmer 90 j = CALCULATE ( [Valeur du stock], FaitStock[JoursAvantPeremption] <= 90 )
+Stock à périmer 30 j = CALCULATE ( [Valeur du stock], FaitStock[JoursAvantPeremption] <= 30 )
+Part stock à risque = DIVIDE ( [Stock à périmer 90 j], [Valeur du stock] )
+Quantité en stock = SUM ( FaitStock[QuantiteStock] )
+Vente moyenne / jour = SUM ( ConsoMoyenne[VenteMoyJour] )
+Couverture (jours) = DIVIDE ( [Quantité en stock], [Vente moyenne / jour] )
+Alerte rupture =
+VAR c = [Couverture (jours)]
+RETURN SWITCH ( TRUE (), ISBLANK ( c ), BLANK (), c < 5, "Critique", c < 10, "À commander", "OK" )
+
+// ---------- Couleurs (mise en forme conditionnelle) ----------
+Couleur marge =
+VAR t = [Taux de marge]
+RETURN SWITCH ( TRUE (), ISBLANK ( t ), BLANK (), t >= 0.29, "#10B981", t >= 0.27, "#F59E0B", "#DC2626" )
